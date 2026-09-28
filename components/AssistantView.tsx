@@ -48,7 +48,7 @@ export function AssistantView({
     } catch {
       setMessages((current) => [
         ...current,
-        { role: "assistant", text: "Could not reach the assistant. Check GEMINI_API_KEY in .env.local." },
+        { role: "assistant", text: "Could not reach the assistant. Check OPENAI_API_KEY on Vercel." },
       ]);
     } finally {
       setLoading(false);

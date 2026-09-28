@@ -1,15 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+
+function openAiKey() {
+  const named = process.env.OPENAI_API_KEY || process.env.CHATGPT_API_KEY;
+  if (named) return named;
+  const legacy = process.env.GEMINI_API_KEY;
+  if (legacy?.startsWith("sk-")) return legacy;
+  return "";
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { prompt, context } = await req.json();
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = openAiKey();
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'GEMINI_API_KEY environment variable is not configured.' },
+        { error: "OPENAI_API_KEY is not configured. Add your ChatGPT key in Vercel as OPENAI_API_KEY." },
         { status: 500 }
       );
+    }
+
+    if (!prompt || typeof prompt !== "string") {
+      return NextResponse.json({ error: "Ask a question first." }, { status: 400 });
     }
 
     const systemInstruction = `You are DealerAI, an AI sales intelligence assistant for an independent used-car dealership in South Africa.
@@ -19,42 +31,36 @@ When making a recommendation, explain the specific underlying numbers.
 Clearly distinguish calculated facts from recommendations.
 Currency is South African Rand (R).`;
 
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    const payload = {
-      systemInstruction: { parts: [{ text: systemInstruction }] },
-      contents: [
-        {
-          parts: [
-            { text: `Dealership Data Context:\n${JSON.stringify(context, null, 2)}\n\nUser Question: ${prompt}` }
-          ]
-        }
-      ]
-    };
-
-    const apiRes = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+    const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemInstruction },
+          {
+            role: "user",
+            content: `Dealership Data Context:\n${JSON.stringify(context, null, 2)}\n\nUser Question: ${prompt}`,
+          },
+        ],
+      }),
     });
 
     if (!apiRes.ok) {
       const body = await apiRes.json().catch(() => null);
-      const message = body?.error?.message || "Upstream Gemini API error";
+      const message = body?.error?.message || "Upstream OpenAI API error";
       return NextResponse.json({ error: message }, { status: apiRes.status });
     }
 
     const data = await apiRes.json();
-    const parts = data?.candidates?.[0]?.content?.parts ?? [];
-    const replyText =
-      parts
-        .filter((part: { text?: string; thought?: boolean }) => part.text && !part.thought)
-        .map((part: { text?: string }) => part.text)
-        .join("\n") || "No response generated.";
+    const replyText = data?.choices?.[0]?.message?.content || "No response generated.";
 
     return NextResponse.json({ text: replyText });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
