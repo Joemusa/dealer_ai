@@ -1,6 +1,7 @@
-import { DealerApp, isTab } from "@/components/DealerApp";
+import { DealerApp } from "@/components/DealerApp";
 import { SetupMessage } from "@/components/SetupMessage";
 import { getFloor } from "@/lib/floor";
+import { isTab } from "@/lib/tabs";
 
 export const dynamic = "force-dynamic";
 

@@ -17,15 +17,9 @@ import { OpportunityCentre } from "@/components/OpportunityCentre";
 import { SalesView } from "@/components/SalesView";
 import { StockView } from "@/components/StockView";
 import { buildOpportunities, dealershipSnapshot } from "@/lib/opportunities";
+import type { Tab } from "@/lib/tabs";
 import { cn, formatRand } from "@/lib/utils";
 import type { Lead, Opportunity, Sale, Vehicle } from "@/types";
-
-const tabs = ["opportunities", "stock", "leads", "sales", "assistant"] as const;
-export type Tab = (typeof tabs)[number];
-
-export function isTab(value: string | undefined): value is Tab {
-  return !!value && (tabs as readonly string[]).includes(value);
-}
 
 const nav: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "opportunities", label: "Opportunities", icon: LayoutDashboard },
