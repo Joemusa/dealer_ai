@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Bot,
   Car,
   LayoutDashboard,
   Search,
+  User,
   Users,
   Wallet,
 } from "lucide-react";
@@ -18,7 +20,12 @@ import { buildOpportunities, dealershipSnapshot } from "@/lib/opportunities";
 import { cn, formatRand } from "@/lib/utils";
 import type { Lead, Opportunity, Sale, Vehicle } from "@/types";
 
-type Tab = "opportunities" | "stock" | "leads" | "sales" | "assistant";
+const tabs = ["opportunities", "stock", "leads", "sales", "assistant"] as const;
+export type Tab = (typeof tabs)[number];
+
+export function isTab(value: string | undefined): value is Tab {
+  return !!value && (tabs as readonly string[]).includes(value);
+}
 
 const nav: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "opportunities", label: "Opportunities", icon: LayoutDashboard },
@@ -33,13 +40,15 @@ export function DealerApp({
   vehicles,
   leads,
   sales,
+  initialTab = "opportunities",
 }: {
   dealershipName: string;
   vehicles: Vehicle[];
   leads: Lead[];
   sales: Sale[];
+  initialTab?: Tab;
 }) {
-  const [tab, setTab] = useState<Tab>("opportunities");
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
   const [seedPrompt, setSeedPrompt] = useState<string>();
@@ -118,6 +127,13 @@ export function DealerApp({
               </button>
             );
           })}
+          <Link
+            href="/staff"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-slate-900 hover:text-white"
+          >
+            <User className="h-4 w-4" />
+            Staff
+          </Link>
         </nav>
       </aside>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Lead, Vehicle } from "@/types";
 import { Badge } from "@/components/Badge";
 import { daysBetween, formatDate, formatRand, vehicleLabel } from "@/lib/utils";
@@ -38,13 +39,21 @@ export function LeadsView({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Leads</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          {rows.length} leads shown
-          {filters.followUp === "overdue" ? " · overdue follow-ups" : ""}
-          {filters.status ? ` · ${filters.status}` : ""}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Leads</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            {rows.length} leads shown
+            {filters.followUp === "overdue" ? " · overdue follow-ups" : ""}
+            {filters.status ? ` · ${filters.status}` : ""}
+          </p>
+        </div>
+        <Link
+          href="/leads/new"
+          className="rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950"
+        >
+          Add lead
+        </Link>
       </div>
       <div className="table-wrap rounded-2xl border border-slate-800 bg-slate-900/60">
         <table className="data">
@@ -66,7 +75,9 @@ export function LeadsView({
               return (
                 <tr key={lead.id}>
                   <td>
-                    <div className="font-medium text-white">{lead.name}</div>
+                    <Link href={`/leads/${lead.id}`} className="font-medium text-white hover:text-amber-200">
+                      {lead.name}
+                    </Link>
                     <div className="text-xs text-slate-500">
                       {lead.phone} · {lead.id}
                     </div>

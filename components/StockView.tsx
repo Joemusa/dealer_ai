@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Vehicle } from "@/types";
 import { Badge } from "@/components/Badge";
 import { daysBetween, formatDate, formatRand, margin, vehicleLabel } from "@/lib/utils";
@@ -32,13 +33,21 @@ export function StockView({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Stock</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          {rows.length} vehicles shown
-          {filters.aging ? ` · ${filters.aging}+ days on floor` : ""}
-          {filters.margin === "thin" ? " · thin margin" : ""}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Stock</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            {rows.length} vehicles shown
+            {filters.aging ? ` · ${filters.aging}+ days on floor` : ""}
+            {filters.margin === "thin" ? " · thin margin" : ""}
+          </p>
+        </div>
+        <Link
+          href="/stock/new"
+          className="rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950"
+        >
+          Add vehicle
+        </Link>
       </div>
       <div className="table-wrap rounded-2xl border border-slate-800 bg-slate-900/60">
         <table className="data">
@@ -61,7 +70,9 @@ export function StockView({
               return (
                 <tr key={vehicle.id}>
                   <td>
-                    <div className="font-medium text-white">{vehicleLabel(vehicle)}</div>
+                    <Link href={`/stock/${vehicle.id}`} className="font-medium text-white hover:text-amber-200">
+                      {vehicleLabel(vehicle)}
+                    </Link>
                     <div className="text-xs text-slate-500">
                       {vehicle.id} · {vehicle.fuel} · {vehicle.transmission}
                     </div>

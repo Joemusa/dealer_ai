@@ -13,6 +13,16 @@ export function formatRand(value: number) {
   }).format(value);
 }
 
+export function todayIso(timeZone = "Africa/Johannesburg") {
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
+}
+
+export function addDaysIso(days: number, timeZone = "Africa/Johannesburg") {
+  const date = new Date(`${todayIso(timeZone)}T12:00:00`);
+  date.setDate(date.getDate() + days);
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(date);
+}
+
 export function formatDate(value: string) {
   const date = new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.getTime())) return value;

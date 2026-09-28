@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Sale } from "@/types";
 import { formatDate, formatRand } from "@/lib/utils";
 
@@ -14,11 +15,19 @@ export function SalesView({ sales, search }: { sales: Sale[]; search: string }) 
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Sales</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          {rows.length} deals · {formatRand(gp)} gross profit
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Sales</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            {rows.length} deals · {formatRand(gp)} gross profit
+          </p>
+        </div>
+        <Link
+          href="/sales/new"
+          className="rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950"
+        >
+          Record sale
+        </Link>
       </div>
       <div className="table-wrap rounded-2xl border border-slate-800 bg-slate-900/60">
         <table className="data">
