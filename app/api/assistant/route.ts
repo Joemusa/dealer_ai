@@ -19,7 +19,8 @@ When making a recommendation, explain the specific underlying numbers.
 Clearly distinguish calculated facts from recommendations.
 Currency is South African Rand (R).`;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const payload = {
       systemInstruction: { parts: [{ text: systemInstruction }] },
@@ -39,11 +40,18 @@ Currency is South African Rand (R).`;
     });
 
     if (!apiRes.ok) {
-      return NextResponse.json({ error: 'Upstream Gemini API error' }, { status: apiRes.status });
+      const body = await apiRes.json().catch(() => null);
+      const message = body?.error?.message || "Upstream Gemini API error";
+      return NextResponse.json({ error: message }, { status: apiRes.status });
     }
 
     const data = await apiRes.json();
-    const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+    const parts = data?.candidates?.[0]?.content?.parts ?? [];
+    const replyText =
+      parts
+        .filter((part: { text?: string; thought?: boolean }) => part.text && !part.thought)
+        .map((part: { text?: string }) => part.text)
+        .join("\n") || "No response generated.";
 
     return NextResponse.json({ text: replyText });
   } catch (error) {
